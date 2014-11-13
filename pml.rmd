@@ -1,0 +1,53 @@
+P.M.L. Course ASSIGNMENT - (Activity Quality from Activity Monitors)
+-----------------------------------------------------------------------------------------
+This document describes the analysis for practical machine learning course assignment.
+
+**Pre-Processing**
+
+After loading the csv files for training and final-evaluation to dataframes in R, a summary of data revealed that there are some numeric columns in data with values "#DIV/0!". 
+So, the data was reloaded with this in mind (by setting this value as NA). Because these columns were seen as "factor" by R, some processing was done to convert them to numeric.
+Then, supplied training data was split into two parts for training and testing purposes and only rows (observations) with no missing values were selected for model building.
+Also, some columns were removed (columns 1-7) because of the fact that they are not good predictors (like "username" column).
+
+**Model & Results**
+
+Then, a model-based-prediction "Quadratic Discriminant Analysis (qda)"  model was built by using the "caret" package and its predictions and accuracy were calculated by related commands from the same "caret" package.
+The overall accuracy of the qda-model was approximately 90% on the testing dataset and it seems also good on the final test data because it scored 95% (19/20) on the Course Project Submission.
+
+**R-Code**
+```
+library(caret)
+
+# load data
+trainingData <- read.csv("pml-training.csv",na.strings=c("#DIV/0!") )
+finalTestData <- read.csv("pml-testing.csv",na.strings=c("#DIV/0!") )
+
+# convert factors to numerics
+for(i in 18:ncol(trainingData)-1) { if (class(trainingData[,i]) == "factor") trainingData[,i] = as.numeric(levels(trainingData[,i]))[trainingData[,i]] }
+
+# select only complete.cases
+feature.names <- colnames(trainingData[colSums(is.na(trainingData)) == 0])[-(1:7)]
+
+# split data for training & testing
+inTraining <- createDataPartition(y=trainingData$classe, p=0.60, list=FALSE )
+training <- trainingData[inTraining,]
+testing <- trainingData[-inTraining,]
+
+training <- training[feature.names]
+testing <- testing[feature.names] 
+
+# build the model
+model <- train(classe~., method="qda", data= training)
+
+# see the results
+predictionsTraining <- predict(model, newdata=training)
+confusionMatrix(predictionsTraining,training$classe)
+ 
+predictionsTest <- predict(model, newdata=testing)
+confusionMatrix(predictionsTest,testing$classe)
+```
+
+**References**
+- The R Project for Statistical Computing - http://www.r-project.org/
+- Caret R package - http://topepo.github.io/caret/index.html
+
