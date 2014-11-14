@@ -9,9 +9,16 @@ So, the data was reloaded with this in mind (by setting this value as NA). Becau
 Then, supplied training data was split into two parts for training and testing purposes and only rows (observations) with no missing values were selected for model building.
 Also, some columns were removed (columns 1-7) because of the fact that they are not good predictors (like "username" column).
 
-**Model & Results**
+**Model Building**
 
-Then, a model-based-prediction "Quadratic Discriminant Analysis (qda)"  model was built by using the "caret" package and its predictions and accuracy were calculated by related commands from the same "caret" package.
+Then, a model-based-prediction "Quadratic Discriminant Analysis (qda)"  model was built with crossvalidation by using the "caret" package and its predictions and accuracy were calculated by related commands from the same "caret" package. 
+
+**Error estimation with cross validation**
+
+The out of error rate is expected to be approximately 10%, as the accuracy of the model observed is 90% (the cross-validation estimate is an out-of-sample estimate).
+
+**Results**
+
 The overall accuracy of the qda-model was approximately 90% on the testing dataset and it seems also good on the final test data because it scored 95% (19/20) on the Course Project Submission.
 
 **R-Code**
@@ -36,8 +43,9 @@ testing <- trainingData[-inTraining,]
 training <- training[feature.names]
 testing <- testing[feature.names] 
 
-# build the model
-model <- train(classe~., method="qda", data= training)
+# build the model with 5-fold cross-validation
+traincontrol <- trainControl(method = "cv", number = 5)
+model <- train(classe~., method="qda", data= training, trControl=traincontrol)
 
 # see the results
 predictionsTraining <- predict(model, newdata=training)

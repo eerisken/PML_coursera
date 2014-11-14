@@ -174,10 +174,17 @@ So, the data was reloaded with this in mind (by setting this value as NA). Becau
 Then, supplied training data was split into two parts for training and testing purposes and only rows (observations) with no missing values were selected for model building.
 Also, some columns were removed (columns 1-7) because of the fact that they are not good predictors (like &ldquo;username&rdquo; column).</p>
 
-<p><strong>Model &amp; Results</strong></p>
+<p><strong>Model Building</strong></p>
 
-<p>Then, a model-based-prediction &ldquo;Quadratic Discriminant Analysis (qda)&rdquo;  model was built by using the &ldquo;caret&rdquo; package and its predictions and accuracy were calculated by related commands from the same &ldquo;caret&rdquo; package.
-The overall accuracy of the qda-model was approximately 90% on the testing dataset and it seems also good on the final test data because it scored 95% (19/20) on the Course Project Submission.</p>
+<p>Then, a model-based-prediction &ldquo;Quadratic Discriminant Analysis (qda)&rdquo;  model was built with crossvalidation by using the &ldquo;caret&rdquo; package and its predictions and accuracy were calculated by related commands from the same &ldquo;caret&rdquo; package. </p>
+
+<p><strong>Error estimation with cross validation</strong></p>
+
+<p>The out of error rate is expected to be approximately 10%, as the accuracy of the model observed is 90% (the cross-validation estimate is an out-of-sample estimate).</p>
+
+<p><strong>Results</strong></p>
+
+<p>The overall accuracy of the qda-model was approximately 90% on the testing dataset and it seems also good on the final test data because it scored 95% (19/20) on the Course Project Submission.</p>
 
 <p><strong>R-Code</strong></p>
 
@@ -201,8 +208,9 @@ testing &lt;- trainingData[-inTraining,]
 training &lt;- training[feature.names]
 testing &lt;- testing[feature.names] 
 
-# build the model
-model &lt;- train(classe~., method=&quot;qda&quot;, data= training)
+# build the model with 5-fold cross-validation
+traincontrol &lt;- trainControl(method = &quot;cv&quot;, number = 5)
+model &lt;- train(classe~., method=&quot;qda&quot;, data= training, trControl=traincontrol)
 
 # see the results
 predictionsTraining &lt;- predict(model, newdata=training)
